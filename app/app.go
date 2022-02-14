@@ -444,7 +444,7 @@ func NewDesmosApp(
 
 	// Initialization of custom Desmos queries for contracts
 	queriers := map[string]wasmdesmos.Querier{
-		wasmdesmos.QueryRouteProfiles: profileswasm.NewProfilesWasmQuerier(app.ProfileKeeper),
+		wasmdesmos.QueryRouteProfiles: profileswasm.NewProfilesWasmQuerier(app.ProfileKeeper, appCodec),
 	}
 
 	querier := wasmdesmos.NewQuerier(queriers)

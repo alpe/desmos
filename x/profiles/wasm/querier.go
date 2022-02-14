@@ -2,6 +2,8 @@ package wasm
 
 import (
 	"encoding/json"
+
+	"github.com/cosmos/cosmos-sdk/codec"
 	profileskeeper "github.com/desmos-labs/desmos/v2/x/profiles/keeper"
 	"github.com/desmos-labs/desmos/v2/x/profiles/types"
 
@@ -15,10 +17,11 @@ var _ cosmwasm.Querier = ProfilesWasmQuerier{}
 
 type ProfilesWasmQuerier struct {
 	profilesKeeper profileskeeper.Keeper
+	cdc            codec.Codec
 }
 
-func NewProfilesWasmQuerier(profilesKeeper profileskeeper.Keeper) ProfilesWasmQuerier {
-	return ProfilesWasmQuerier{profilesKeeper: profilesKeeper}
+func NewProfilesWasmQuerier(profilesKeeper profileskeeper.Keeper, cdc codec.Codec) ProfilesWasmQuerier {
+	return ProfilesWasmQuerier{profilesKeeper: profilesKeeper, cdc: cdc}
 }
 
 func (ProfilesWasmQuerier) Query(_ sdk.Context, _ wasmvmtypes.QueryRequest) ([]byte, error) {
@@ -37,11 +40,11 @@ func (querier ProfilesWasmQuerier) QueryCustom(ctx sdk.Context, data json.RawMes
 
 	switch {
 	case desmosQuery.Profile != nil:
-		profileResponse, err := querier.profilesKeeper.Profile(ctx.Context(), desmosQuery.Profile.Request)
+		profileResponse, err := querier.profilesKeeper.QueryProfile(ctx, desmosQuery.Profile)
 		if err != nil {
 			return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 		}
-		bz, err = json.Marshal(profileResponse)
+		bz, err = querier.cdc.MarshalJSON(profileResponse)
 		if err != nil {
 			return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 		}

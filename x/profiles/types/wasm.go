@@ -12,11 +12,7 @@ type ProfilesMsg struct {
 }
 
 type ProfilesQueryRoutes struct {
-	Profile *ProfileQuery `json:"profile"`
-}
-
-type ProfileQuery struct {
-	Request *QueryProfileRequest `json:"request"`
+	Profile *QueryProfileRequest `json:"profile"`
 }
 
 // UpdateDtagAuctionStatus represent the sudo message that's triggered from the profile module to update the status of an auction
