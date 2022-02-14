@@ -1,9 +1,10 @@
 package keeper_test
 
 import (
-	"github.com/CosmWasm/wasmd/x/wasm"
 	"testing"
 	"time"
+
+	"github.com/CosmWasm/wasmd/x/wasm"
 
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 
@@ -78,12 +79,6 @@ func (p TestProfile) Sign(data []byte) []byte {
 		panic(err)
 	}
 	return bz
-}
-
-type TestData struct {
-	user      string
-	otherUser string
-	profile   TestProfile
 }
 
 func (suite *KeeperTestSuite) SetupTest() {

@@ -58,43 +58,6 @@ func (k Keeper) Profile(ctx context.Context, request *types.QueryProfileRequest)
 	return &types.QueryProfileResponse{Profile: accountAny}, nil
 }
 
-func (k Keeper) QueryProfile(ctx sdk.Context, request *types.QueryProfileRequest) (*types.QueryProfileResponse, error) {
-	dTagOrAddress := request.User
-	if strings.TrimSpace(dTagOrAddress) == "" {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "DTag or address cannot be empty or blank")
-	}
-
-	sdkAddress, err := sdk.AccAddressFromBech32(dTagOrAddress)
-	if err != nil {
-		addr := k.GetAddressFromDTag(ctx, dTagOrAddress)
-		if addr == "" {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest,
-				"No address related to this DTag: %s", dTagOrAddress)
-		}
-
-		sdkAddress, err = sdk.AccAddressFromBech32(addr)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, addr)
-		}
-	}
-
-	account, found, err := k.GetProfile(ctx, sdkAddress.String())
-	if err != nil {
-		return nil, err
-	}
-
-	if !found {
-		return &types.QueryProfileResponse{Profile: nil}, nil
-	}
-
-	accountAny, err := codectypes.NewAnyWithValue(account)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.QueryProfileResponse{Profile: accountAny}, nil
-}
-
 func (k Keeper) IncomingDTagTransferRequests(ctx context.Context, request *types.QueryIncomingDTagTransferRequestsRequest) (*types.QueryIncomingDTagTransferRequestsResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	var requests []types.DTagTransferRequest

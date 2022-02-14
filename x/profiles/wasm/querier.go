@@ -40,7 +40,7 @@ func (querier ProfilesWasmQuerier) QueryCustom(ctx sdk.Context, data json.RawMes
 
 	switch {
 	case desmosQuery.Profile != nil:
-		profileResponse, err := querier.profilesKeeper.QueryProfile(ctx, desmosQuery.Profile)
+		profileResponse, err := querier.profilesKeeper.Profile(sdk.WrapSDKContext(ctx), desmosQuery.Profile)
 		if err != nil {
 			return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 		}
