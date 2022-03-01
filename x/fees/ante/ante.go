@@ -52,16 +52,13 @@ func (mfd MinFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	// all transactions must be of type feeTx
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
-		// Set a gas meter with limit 0 as to prevent an infinite gas meter attack
-		// during runTx.
-		newCtx = setGasMeter(simulate, ctx, 0)
 		return newCtx, errors.New("tx must be FeeTx")
 	}
 
 	// skip block with height 0, otherwise no chain initialization could happen!
-	if ctx.BlockHeight() == 0 {
-		return next(ctx, tx, simulate)
-	}
+	//if ctx.BlockHeight() == 0 {
+	//	return next(ctx, tx, simulate)
+	//}
 
 	// Check the minimum fees of the transaction
 	err = mfd.feesKeeper.CheckFees(ctx, feeTx.GetFee(), feeTx.GetMsgs())
