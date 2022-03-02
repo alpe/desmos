@@ -20,7 +20,7 @@ We will create a module named `fees` which give desmos community the possibility
 message through governance.
 
 ### Types
-Minimum (or custom) fees will contains the following elements:  
+Minimum (or custom) fees will contain the following elements:  
 
 * a string identifying the message type delivered with the transaction;
 * the amount of fees associated with the give message.
@@ -36,35 +36,61 @@ type MinFee struct {
 }
 ```
 
+#### Params
+We will save the `MinFee`s for messages in the module `Params` in order to be able to change them with governance 
+`ParameterChangeProposal`s. To pursue efficiency, the ideal implementation for them is the following:
+
+```go
+type Params struct {
+	MinFees map[string]MinFee
+}
+```
+
+This map will contain the proto message type as key, and the `MinFee` as value, allowing us to keep 
+a constant complexity lookup for its elements.
+
+#### Ante Handler and Fee Decorator
+We need to set up a custom [AnteHandler](https://github.com/cosmos/cosmos-sdk/blob/da36c46f3a3a8dec7eaa85b69e7fa154e9d64dce/types/handler.go#L8) 
+in order to be able to manage custom fees.  
+This one will look exactly like the default one except for the fact that it will have an extra decorator to handle
+custom fees:
+```go
+type MinFeeDecorator struct {
+	feesKeeper feeskeeper.Keeper
+}
+```
+
+This decorator will implement the following interface:
+```go
+// AnteDecorator wraps the next AnteHandler to perform custom pre- and post-processing.
+type AnteDecorator interface {
+	AnteHandle(ctx Context, tx Tx, simulate bool, next AnteHandler) (newCtx Context, err error)
+}
+```
+
+### `Query` Service
+We will expose the following query:
+```protobuf
+// Query defines the gRPC querier service.
+service Query {
+  // Params queries the fees module params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse);
+}
+```
+
 ## Consequences
 
-> This section describes the resulting context, after applying the decision. All consequences should be listed here, not just the "positive" ones. A particular decision may have positive, negative, and neutral consequences, but all of them affect the team and project in the future.
-
-### Backwards Compatibility
-
-> All ADRs that introduce backwards incompatibilities must include a section describing these incompatibilities and their severity. The ADR must explain how the author proposes to deal with these incompatibilities. ADR submissions without a sufficient backwards compatibility treatise may be rejected outright.
-
-### Positive
-
-{positive consequences}
-
 ### Negative
-
-{negative consequences}
-
-### Neutral
-
-{neutral consequences}
-
-## Further Discussions
-
-While an ADR is in the DRAFT or PROPOSED stage, this section should contain a summary of issues to be solved in future iterations (usually referencing comments from a pull-request discussion).
-Later, this section can optionally list ideas or improvements the author or reviewers found during the analysis of this ADR.
+Applying custom fees to messages requires to add an extra decorator to the `AnteHandler`, 
+which will need to perform stateful checks that can eventually slow down the node a bit. 
 
 ## Test Cases [optional]
 
-Test cases for an implementation are mandatory for ADRs that are affecting consensus changes. Other ADRs can choose to include links to test cases if applicable.
+We will need to add the following test cases :
+* The custom fees are applied correctly;
+* Benchmark on `AnteHandler`.
 
 ## References
 
-- {reference link}
+- [Ante Handlers](https://docs.cosmos.network/v0.44/modules/auth/03_antehandlers.html#antehandlers);
+- [First issue about min fees](https://github.com/desmos-labs/desmos/issues/230).
