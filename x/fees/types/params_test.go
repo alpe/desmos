@@ -19,8 +19,8 @@ func TestValidateParams(t *testing.T) {
 	}{
 		{
 			name: "invalid min fees param returns error",
-			params: types.NewParams([]types.MinFee{
-				types.NewMinFee("", sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1)))),
+			params: types.NewParams(map[string]types.MinFee{
+				"": {"", sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1)))},
 			},
 			),
 			expErr: fmt.Errorf("invalid minimum fee message type"),

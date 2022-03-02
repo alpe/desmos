@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -14,9 +15,9 @@ func NewMinFee(messageType string, amount sdk.Coins) MinFee {
 	}
 }
 
-// Validate checks if mf represents a valid instance
+// Validate checks if minimum fee represents a valid instance
 func (mf MinFee) Validate() error {
-	if mf.MessageType == "" {
+	if strings.TrimSpace(mf.MessageType) == "" {
 		return fmt.Errorf("invalid minimum fee message type")
 	}
 

@@ -2,21 +2,17 @@ package types
 
 import (
 	"fmt"
+	"strings"
 
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 const (
-	// default paramspace for paramsModule keeper
 	DefaultParamspace = ModuleName
 )
 
 var (
-	DefaultMinFees []MinFee
-)
-
-// Parameters store keys
-var (
+	DefaultMinFees  = make(map[string]MinFee)
 	MinFeesStoreKey = []byte("MinFees")
 )
 
@@ -26,7 +22,7 @@ func ParamKeyTable() paramstypes.KeyTable {
 }
 
 // NewParams create a new params object with the given data
-func NewParams(minFees []MinFee) Params {
+func NewParams(minFees map[string]MinFee) Params {
 	return Params{
 		MinFees: minFees,
 	}
@@ -55,13 +51,16 @@ func (params Params) Validate() error {
 }
 
 func ValidateMinFeesParam(i interface{}) error {
-	fees, isCorrectParam := i.([]MinFee)
+	fees, isCorrectParam := i.(map[string]MinFee)
 
 	if !isCorrectParam {
 		return fmt.Errorf("invalid parameter type: %s", i)
 	}
 
-	for _, fee := range fees {
+	for messageType, fee := range fees {
+		if strings.TrimSpace(messageType) == "" {
+			fmt.Errorf("invalid minimum fee message type (map key)")
+		}
 		if err := fee.Validate(); err != nil {
 			return err
 		}
