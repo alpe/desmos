@@ -22,6 +22,7 @@ import (
 type Keeper struct {
 	storeKey      sdk.StoreKey
 	cdc           codec.BinaryCodec
+	legacyAmino   *codec.LegacyAmino
 	paramSubspace paramstypes.Subspace
 	hooks         types.ProfilesHooks
 
@@ -43,6 +44,7 @@ type Keeper struct {
 //    This is used to get the address of a user based on a DTag
 func NewKeeper(
 	cdc codec.BinaryCodec,
+	legacyAmino *codec.LegacyAmino,
 	storeKey sdk.StoreKey,
 	paramSpace paramstypes.Subspace,
 	ak authkeeper.AccountKeeper,
@@ -59,6 +61,7 @@ func NewKeeper(
 	return Keeper{
 		storeKey:      storeKey,
 		cdc:           cdc,
+		legacyAmino:   legacyAmino,
 		paramSubspace: paramSpace,
 		ak:            ak,
 		rk:            rk,
