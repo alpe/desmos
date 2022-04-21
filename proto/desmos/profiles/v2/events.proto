@@ -1,0 +1,174 @@
+syntax = "proto3";
+package desmos.profiles.v2;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/desmos-labs/desmos/v3/x/profiles/types";
+
+// EventSaveProfile is an event emitted when a profile is saved
+message EventSaveProfile {
+  string dtag = 1 [
+    (gogoproto.moretags) = "yaml:\"dtag\"",
+    (gogoproto.customname) = "DTag"
+  ];
+
+  // CreationTime represents the time in which the profile has been created
+  google.protobuf.Timestamp creation_date = 2 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.moretags) = "yaml:\"creation_date\"",
+    (gogoproto.nullable) = false
+  ];
+
+  // Owner of the profile
+  string user = 3 [ (gogoproto.moretags) = "yaml:\"user\"" ];
+}
+
+// EventDeleteProfile is an event emitted when a profile is deleted
+message EventDeleteProfile {
+  // Owner of the deleted profile
+  string user = 1 [ (gogoproto.moretags) = "yaml:\"user\"" ];
+}
+
+// EventRequestDTagTransfer is an event emitted when a DTag transfer is
+// requested
+message EventRequestDTagTransfer {
+  // DTag to be traded
+  string dtag_to_trade = 1 [
+    (gogoproto.moretags) = "yaml:\"dtag_to_trade\"",
+    (gogoproto.customname) = "DTagToTrade"
+  ];
+
+  // Sender of the request
+  string request_sender = 2
+      [ (gogoproto.moretags) = "yaml:\"request_sender\"" ];
+
+  // Receiver of the request
+  string request_receiver = 3
+      [ (gogoproto.moretags) = "yaml:\"request_receiver\"" ];
+}
+
+// EventCancelDTagTransferRequest is an event emitted when a DTag transfer
+// request is canceled
+message EventCancelDTagTransferRequest {
+  // Sender of the request
+  string request_sender = 1
+      [ (gogoproto.moretags) = "yaml:\"request_sender\"" ];
+
+  // Receiver of the request
+  string request_receiver = 2
+      [ (gogoproto.moretags) = "yaml:\"request_receiver\"" ];
+}
+
+// EventAcceptDTagTransferRequest is an event emitted when a DTag transfer
+// request is accepted
+message EventAcceptDTagTransferRequest {
+  // DTag to be traded
+  string dtag_to_trade = 1 [
+    (gogoproto.moretags) = "yaml:\"dtag_to_trade\"",
+    (gogoproto.customname) = "DTagToTrade"
+  ];
+
+  // New DTag the request receiver will have after accepting the request
+  string new_dtag = 2 [
+    (gogoproto.moretags) = "yaml:\"new_dtag\"",
+    (gogoproto.customname) = "NewDTag"
+  ];
+
+  // Request sender
+  string request_sender = 3
+      [ (gogoproto.moretags) = "yaml:\"request_sender\"" ];
+
+  // Request receiver
+  string request_receiver = 4
+      [ (gogoproto.moretags) = "yaml:\"request_receiver\"" ];
+}
+
+// EventRefuseDTagTransferRequest is an event emitted when a DTag transfer
+// request is refused
+message EventRefuseDTagTransferRequest {
+  // Sender of the request
+  string request_sender = 1
+      [ (gogoproto.moretags) = "yaml:\"request_sender\"" ];
+
+  // Receiver of the request
+  string request_receiver = 2
+      [ (gogoproto.moretags) = "yaml:\"request_receiver\"" ];
+}
+
+// EventLinkChainAccount is an event emitted when a chain link is created
+message EventLinkChainAccount {
+  // Name of the external chain
+  string chain_name = 1 [ (gogoproto.moretags) = "yaml:\"chain_name\"" ];
+
+  // Address on the external chain
+  string target = 2 [ (gogoproto.moretags) = "yaml:\"target\"" ];
+
+  // CreationTime represents the time in which the link has been created
+  google.protobuf.Timestamp creation_date = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.moretags) = "yaml:\"creation_date\"",
+    (gogoproto.nullable) = false
+  ];
+
+  // Owner of the link
+  string user = 4 [ (gogoproto.moretags) = "yaml:\"user\"" ];
+}
+
+// EventUnlinkChainAccount is an event emitted when a chain link is deleted
+message EventUnlinkChainAccount {
+  // Name of the external chain
+  string chain_name = 1 [ (gogoproto.moretags) = "yaml:\"chain_name\"" ];
+
+  // Address on the external chain
+  string target = 2 [ (gogoproto.moretags) = "yaml:\"target\"" ];
+
+  // Owner of the link
+  string user = 3 [ (gogoproto.moretags) = "yaml:\"user\"" ];
+}
+
+// EventLinkApplication is an event emitted when an application link is
+// created
+message EventLinkApplication {
+  // Name of the linked application
+  string application = 1 [ (gogoproto.moretags) = "yaml:\"application\"" ];
+
+  // Username on the application that has been linked
+  string username = 2 [ (gogoproto.moretags) = "yaml:\"username\"" ];
+
+  // CreationTime represents the time in which the link has been created
+  google.protobuf.Timestamp creation_date = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.moretags) = "yaml:\"creation_date\"",
+    (gogoproto.nullable) = false
+  ];
+
+  // Owner of the link
+  string user = 4 [ (gogoproto.moretags) = "yaml:\"user\"" ];
+}
+
+// EventSaveApplicationLink is an event emitted when an application link is
+// saved
+message EventSaveApplicationLink {
+  // Name of the linked application
+  string application = 1 [ (gogoproto.moretags) = "yaml:\"application\"" ];
+
+  // Username on the application that has been linked
+  string username = 2 [ (gogoproto.moretags) = "yaml:\"username\"" ];
+
+  // Owner of the link
+  string user = 3 [ (gogoproto.moretags) = "yaml:\"user\"" ];
+}
+
+// EventUnlinkApplication is an event emitted when an application link is
+// deleted
+message EventUnlinkApplication {
+  // Name of the linked application
+  string application = 1 [ (gogoproto.moretags) = "yaml:\"application\"" ];
+
+  // Username on the application that has been linked
+  string username = 2 [ (gogoproto.moretags) = "yaml:\"username\"" ];
+
+  // Owner of the link
+  string user = 3 [ (gogoproto.moretags) = "yaml:\"user\"" ];
+}

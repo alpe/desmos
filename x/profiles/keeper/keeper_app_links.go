@@ -27,18 +27,15 @@ func (k Keeper) SaveApplicationLink(ctx sdk.Context, link types.ApplicationLink)
 	store.Set(types.ApplicationLinkClientIDKey(link.OracleRequest.ClientID), userApplicationLinkKey)
 	store.Set(types.ApplicationLinkOwnerKey(link.Data.Application, link.Data.Username, link.User), []byte{0x01})
 
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypesApplicationLinkSaved,
-			sdk.NewAttribute(types.AttributeKeyUser, link.User),
-			sdk.NewAttribute(types.AttributeKeyApplicationName, link.Data.Application),
-			sdk.NewAttribute(types.AttributeKeyApplicationUsername, link.Data.Username),
-		),
-	)
-
 	k.AfterApplicationLinkSaved(ctx, link)
 
-	return nil
+	return ctx.EventManager().EmitTypedEvent(
+		&types.EventSaveApplicationLink{
+			Application: link.Data.Application,
+			Username:    link.Data.Username,
+			Owner:       link.Data.Username,
+		},
+	)
 }
 
 // HasApplicationLink tells whether the given application link exists

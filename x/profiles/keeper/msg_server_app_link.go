@@ -2,10 +2,8 @@ package keeper
 
 import (
 	"context"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/desmos-labs/desmos/v3/x/profiles/types"
@@ -53,16 +51,16 @@ func (k Keeper) LinkApplication(
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
 		),
-		sdk.NewEvent(
-			types.EventTypesApplicationLinkCreated,
-			sdk.NewAttribute(types.AttributeKeyUser, msg.Sender),
-			sdk.NewAttribute(types.AttributeKeyApplicationName, msg.LinkData.Application),
-			sdk.NewAttribute(types.AttributeKeyApplicationUsername, msg.LinkData.Username),
-			sdk.NewAttribute(types.AttributeKeyApplicationLinkCreationTime, ctx.BlockTime().Format(time.RFC3339)),
-		),
 	})
 
-	return &types.MsgLinkApplicationResponse{}, nil
+	return &types.MsgLinkApplicationResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.EventLinkApplication{
+			Application:  link.Data.Application,
+			Username:     link.Data.Username,
+			CreationDate: link.CreationTime,
+			User:         link.User,
+		},
+	)
 }
 
 func (k msgServer) UnlinkApplication(
@@ -95,13 +93,13 @@ func (k msgServer) UnlinkApplication(
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer),
 		),
-		sdk.NewEvent(
-			types.EventTypeApplicationLinkDeleted,
-			sdk.NewAttribute(types.AttributeKeyUser, msg.Signer),
-			sdk.NewAttribute(types.AttributeKeyApplicationName, msg.Application),
-			sdk.NewAttribute(types.AttributeKeyApplicationUsername, msg.Username),
-		),
 	})
 
-	return &types.MsgUnlinkApplicationResponse{}, nil
+	return &types.MsgUnlinkApplicationResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.EventUnlinkApplication{
+			Application: link.Data.Application,
+			Username:    link.Data.Username,
+			User:        link.User,
+		},
+	)
 }

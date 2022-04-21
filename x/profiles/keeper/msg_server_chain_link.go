@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"time"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -32,16 +31,16 @@ func (k msgServer) LinkChainAccount(goCtx context.Context, msg *types.MsgLinkCha
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer),
 		),
-		sdk.NewEvent(
-			types.EventTypeLinkChainAccount,
-			sdk.NewAttribute(types.AttributeKeyChainLinkSourceAddress, srcAddrData.GetValue()),
-			sdk.NewAttribute(types.AttributeKeyChainLinkSourceChainName, msg.ChainConfig.Name),
-			sdk.NewAttribute(types.AttributeKeyChainLinkDestinationAddress, msg.Signer),
-			sdk.NewAttribute(types.AttributeKeyChainLinkCreationTime, link.CreationTime.Format(time.RFC3339Nano)),
-		),
 	})
 
-	return &types.MsgLinkChainAccountResponse{}, nil
+	return &types.MsgLinkChainAccountResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.EventLinkChainAccount{
+			ChainName:    link.ChainConfig.Name,
+			Target:       link.GetAddressData().GetValue(),
+			CreationDate: link.CreationTime,
+			User:         link.User,
+		},
+	)
 }
 
 func (k msgServer) UnlinkChainAccount(goCtx context.Context, msg *types.MsgUnlinkChainAccount) (*types.MsgUnlinkChainAccountResponse, error) {
@@ -63,13 +62,13 @@ func (k msgServer) UnlinkChainAccount(goCtx context.Context, msg *types.MsgUnlin
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner),
 		),
-		sdk.NewEvent(
-			types.EventTypeUnlinkChainAccount,
-			sdk.NewAttribute(types.AttributeKeyChainLinkSourceAddress, msg.Target),
-			sdk.NewAttribute(types.AttributeKeyChainLinkSourceChainName, msg.ChainName),
-			sdk.NewAttribute(types.AttributeKeyChainLinkDestinationAddress, msg.Owner),
-		),
 	})
 
-	return &types.MsgUnlinkChainAccountResponse{}, nil
+	return &types.MsgUnlinkChainAccountResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.EventUnlinkChainAccount{
+			ChainName: link.ChainConfig.Name,
+			Target:    link.GetAddressData().GetValue(),
+			User:      link.User,
+		},
+	)
 }

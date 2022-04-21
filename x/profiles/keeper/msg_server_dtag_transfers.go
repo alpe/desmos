@@ -49,15 +49,15 @@ func (k msgServer) RequestDTagTransfer(goCtx context.Context, msg *types.MsgRequ
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
 		),
-		sdk.NewEvent(
-			types.EventTypeDTagTransferRequest,
-			sdk.NewAttribute(types.AttributeKeyDTagToTrade, dTagToTrade),
-			sdk.NewAttribute(types.AttributeKeyRequestSender, transferRequest.Sender),
-			sdk.NewAttribute(types.AttributeKeyRequestReceiver, transferRequest.Receiver),
-		),
 	})
 
-	return &types.MsgRequestDTagTransferResponse{}, nil
+	return &types.MsgRequestDTagTransferResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.EventRequestDTagTransfer{
+			DTagToTrade:     dTagToTrade,
+			RequestSender:   transferRequest.Sender,
+			RequestReceiver: transferRequest.Receiver,
+		},
+	)
 }
 
 func (k msgServer) CancelDTagTransferRequest(goCtx context.Context, msg *types.MsgCancelDTagTransferRequest) (*types.MsgCancelDTagTransferRequestResponse, error) {
@@ -78,14 +78,14 @@ func (k msgServer) CancelDTagTransferRequest(goCtx context.Context, msg *types.M
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
 		),
-		sdk.NewEvent(
-			types.EventTypeDTagTransferCancel,
-			sdk.NewAttribute(types.AttributeKeyRequestSender, msg.Sender),
-			sdk.NewAttribute(types.AttributeKeyRequestReceiver, msg.Receiver),
-		),
 	})
 
-	return &types.MsgCancelDTagTransferRequestResponse{}, nil
+	return &types.MsgCancelDTagTransferRequestResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.EventCancelDTagTransferRequest{
+			RequestSender:   msg.Sender,
+			RequestReceiver: msg.Receiver,
+		},
+	)
 }
 
 func (k msgServer) AcceptDTagTransferRequest(goCtx context.Context, msg *types.MsgAcceptDTagTransferRequest) (*types.MsgAcceptDTagTransferRequestResponse, error) {
@@ -183,16 +183,16 @@ func (k msgServer) AcceptDTagTransferRequest(goCtx context.Context, msg *types.M
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Receiver),
 		),
-		sdk.NewEvent(
-			types.EventTypeDTagTransferAccept,
-			sdk.NewAttribute(types.AttributeKeyDTagToTrade, dTagToTrade),
-			sdk.NewAttribute(types.AttributeKeyNewDTag, msg.NewDTag),
-			sdk.NewAttribute(types.AttributeKeyRequestSender, msg.Sender),
-			sdk.NewAttribute(types.AttributeKeyRequestReceiver, msg.Receiver),
-		),
 	})
 
-	return &types.MsgAcceptDTagTransferRequestResponse{}, nil
+	return &types.MsgAcceptDTagTransferRequestResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.EventAcceptDTagTransferRequest{
+			DTagToTrade:     dTagToTrade,
+			NewDTag:         msg.NewDTag,
+			RequestSender:   msg.Sender,
+			RequestReceiver: msg.Receiver,
+		},
+	)
 }
 
 func (k msgServer) RefuseDTagTransferRequest(goCtx context.Context, msg *types.MsgRefuseDTagTransferRequest) (*types.MsgRefuseDTagTransferRequestResponse, error) {
@@ -213,12 +213,12 @@ func (k msgServer) RefuseDTagTransferRequest(goCtx context.Context, msg *types.M
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Receiver),
 		),
-		sdk.NewEvent(
-			types.EventTypeDTagTransferRefuse,
-			sdk.NewAttribute(types.AttributeKeyRequestSender, msg.Sender),
-			sdk.NewAttribute(types.AttributeKeyRequestReceiver, msg.Receiver),
-		),
 	})
 
-	return &types.MsgRefuseDTagTransferRequestResponse{}, nil
+	return &types.MsgRefuseDTagTransferRequestResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.MsgRefuseDTagTransferRequest{
+			Sender:   msg.Sender,
+			Receiver: msg.Receiver,
+		},
+	)
 }

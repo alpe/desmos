@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -73,15 +72,15 @@ func (k msgServer) SaveProfile(goCtx context.Context, msg *types.MsgSaveProfile)
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
-		sdk.NewEvent(
-			types.EventTypeProfileSaved,
-			sdk.NewAttribute(types.AttributeKeyProfileDTag, updated.DTag),
-			sdk.NewAttribute(types.AttributeKeyProfileCreator, updated.GetAddress().String()),
-			sdk.NewAttribute(types.AttributeKeyProfileCreationTime, updated.CreationDate.Format(time.RFC3339Nano)),
-		),
 	})
 
-	return &types.MsgSaveProfileResponse{}, nil
+	return &types.MsgSaveProfileResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.EventSaveProfile{
+			DTag:         updated.DTag,
+			CreationDate: updated.CreationDate,
+			User:         updated.GetAddress().String(),
+		},
+	)
 }
 
 func (k msgServer) DeleteProfile(goCtx context.Context, msg *types.MsgDeleteProfile) (*types.MsgDeleteProfileResponse, error) {
@@ -99,11 +98,11 @@ func (k msgServer) DeleteProfile(goCtx context.Context, msg *types.MsgDeleteProf
 			sdk.NewAttribute(sdk.AttributeKeyAction, sdk.MsgTypeURL(msg)),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
-		sdk.NewEvent(
-			types.EventTypeProfileDeleted,
-			sdk.NewAttribute(types.AttributeKeyProfileCreator, msg.Creator),
-		),
 	})
 
-	return &types.MsgDeleteProfileResponse{}, nil
+	return &types.MsgDeleteProfileResponse{}, ctx.EventManager().EmitTypedEvents(
+		&types.EventDeleteProfile{
+			User: msg.Creator,
+		},
+	)
 }
